@@ -1,7 +1,10 @@
-import React, { use, useEffect, useState } from 'react';
+import React, { use, useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import getData from '../services/getData';
 import Popup from './Popup';
+import gsap from 'gsap';
+
+
 
 import '../css/Home.css';
 import Sidebar from './Sidebar.jsx';
@@ -15,11 +18,24 @@ function Home() {
     const [selectedMovie, setSelectedMovie] = useState(null);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
 
+    const movieCardsRef = useRef([]);
+
     useEffect(() => {
         async function fetchedData() {
             try {
                 const data = await getData(title);
                 setFilmData(data);
+                
+                gsap.fromTo(movieCardsRef.current, {
+                    opacity: 0,
+                    y: -50
+                }, {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    stagger: 0.1,
+                    ease: "power2.out"
+                });
             } catch (error) {
                 console.error(`Error fetching data: ${error.message}`);
             }
@@ -27,9 +43,34 @@ function Home() {
         fetchedData();
     }, [title]);
 
+
+
     const handleSearch = (event) => {
         setSearchedFilm(event.target.value);
     };
+
+    const searchButtonRef = useRef(null);
+
+    useEffect(() => {
+        const button = searchButtonRef.current;
+        if (!button) return;
+
+        // Hover animation
+        button.addEventListener('mouseenter', () => {
+            gsap.to(button, { scale: 1.2, duration: 0.2 });
+        });
+
+        button.addEventListener('mouseleave', () => {
+            gsap.to(button, { scale: 1, duration: 0.2 });
+        });
+
+        // Click animation
+        button.addEventListener('click', (e) => {
+            const tl = gsap.timeline();
+            tl.to(button, { scale: 0.7, duration: 0.1 })
+              .to(button, { scale: 1, duration: 0.2 });
+        });
+    }, []);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -40,6 +81,7 @@ function Home() {
             console.error(`Error fetching data: ${error.message}`);
         }
     };
+
 
     return (
         <div className='container'>
@@ -53,11 +95,22 @@ function Home() {
                         onChange={handleSearch}
                         placeholder="Search for a movie..."
                     />
-                    <button type="submit">Search</button>
+                    <button 
+                        type="submit"
+                        ref={searchButtonRef}
+                    >
+                        Search
+                    </button>
+
                 </form>
                 <div className="movie-grid-container">
                     {filmData.map((film) => (
-                        <div key={film["#IMDB_ID"]} className='movie-display'>
+                        <div 
+                            key={film["#IMDB_ID"]} 
+                            className='movie-display'
+                            ref={el => movieCardsRef.current.push(el)}
+                        >
+
                             <img 
                                 src={film["#IMG_POSTER"]} 
                                 alt={film["#TITLE"]} 
