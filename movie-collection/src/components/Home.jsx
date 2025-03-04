@@ -26,7 +26,7 @@ function Home() {
                 const data = await getData(title);
                 setFilmData(data);
                 
-                gsap.fromTo(movieCardsRef.current, {
+                gsap.fromTo('.movie-display', {
                     opacity: 0,
                     y: -50
                 }, {
@@ -55,7 +55,6 @@ function Home() {
         const button = searchButtonRef.current;
         if (!button) return;
 
-        // Hover animation
         button.addEventListener('mouseenter', () => {
             gsap.to(button, { scale: 1.2, duration: 0.2 });
         });
@@ -64,7 +63,6 @@ function Home() {
             gsap.to(button, { scale: 1, duration: 0.2 });
         });
 
-        // Click animation
         button.addEventListener('click', (e) => {
             const tl = gsap.timeline();
             tl.to(button, { scale: 0.7, duration: 0.1 })
@@ -108,7 +106,6 @@ function Home() {
                         <div 
                             key={film["#IMDB_ID"]} 
                             className='movie-display'
-                            ref={el => movieCardsRef.current.push(el)}
                         >
 
                             <img 
